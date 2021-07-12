@@ -27,8 +27,8 @@ public class Lesson4assignment1Application {
 		Singleton first = Singleton.getInstance();
 		Singleton second = Singleton.getInstance();
 
-		first.test = "Pickle";
-		second.test = "Bagel";
+		first.test = "Singleton is NOT double check locked.";
+		second.test = "Singleton is double check locked.";
 
 		System.out.println(first.test);
 		System.out.println(second.test);
