@@ -5,11 +5,11 @@ public class Lesson4assignment3Application {
 
 	public static class BoundedBuffer {
 
-		private static int[] arr = new int[100];
+		private int[] arr = new int[100];
 
 		private static BoundedBuffer instance;
 
-		private static int lastLocation = 0;
+		private int location = 0;
 
 		private BoundedBuffer() {};
 
@@ -25,13 +25,13 @@ public class Lesson4assignment3Application {
 	        return instance;
 		};
 
-		public void addNumber(int num) {
-			arr[lastLocation] = num;
-			lastLocation++;
+		public void addNumber(int input) {
+			arr[location] = input;
+			location++;
 		};
 
 		public int returnLast() {
-			return arr[lastLocation - 1];
+			return arr[location - 1];
 		}
 
 	};
@@ -41,13 +41,13 @@ public class Lesson4assignment3Application {
 			public void run() {
 				Random rand = new Random();
 				int product = rand.nextInt(100);
-				BoundedBuffer production = new BoundedBuffer();
+				BoundedBuffer production = BoundedBuffer.getInstance();
 				production.addNumber(product);
 			};
 		};
 		Thread consumer = new Thread() {
 			public void run() {
-				BoundedBuffer consumption = new BoundedBuffer();
+				BoundedBuffer consumption = BoundedBuffer.getInstance();
 				System.out.println(consumption.returnLast());
 			};
 		};
