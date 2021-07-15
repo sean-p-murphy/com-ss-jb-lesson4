@@ -1,59 +1,74 @@
 package com.ss.jb.lesson4assignment3.lesson4assignment3;
-import java.util.Random;
+import java.util.LinkedList;
 
 public class Lesson4assignment3Application {
 
-	public static class BoundedBuffer {
+	public static class PC {
 
-		private int[] arr = new int[100];
+		LinkedList<Integer> list = new LinkedList<>();
+		int capacity = 2;
 
-		private static BoundedBuffer instance;
-
-		private int location = 0;
-
-		private BoundedBuffer() {};
-
-		public static BoundedBuffer getInstance() {
-
-			if (instance == null) {
-				synchronized (BoundedBuffer.class) {
-					if (instance == null) {
-						instance = new BoundedBuffer();
-					}
+		public void produce() throws InterruptedException {
+			int value = 0;
+			while (true) {
+				synchronized (this) {
+					while (list.size() == capacity) {
+						wait();
+					};
+					System.out.println("Produced Value : " + value);
+					list.add(value);
+					value++;
+					notify();
+					Thread.sleep(500);
 				}
-        	}
-	        return instance;
-		};
-
-		public void addNumber(int input) {
-			arr[location] = input;
-			location++;
-		};
-
-		public int returnLast() {
-			return arr[location - 1];
+			}
 		}
 
-	};
+		public void consume() throws InterruptedException {
+			while (true) {
+				synchronized (this) {
+					while (list.size() == 0) {
+						wait();
+					}
+					int value = list.getFirst();
+					list.removeFirst();
+					System.out.println("Consumed Value : " + value);
+					notify();
+					Thread.sleep(500);
+				}
+			}
+		}
+	}
 
-	public static void main(String[] args) {
-		Thread producer = new Thread() {
+	public static void main (String[] args) throws InterruptedException {
+
+		final PC pc = new PC();
+
+		Thread threadPro = new Thread() {
 			public void run() {
-				Random rand = new Random();
-				int product = rand.nextInt(100);
-				BoundedBuffer production = BoundedBuffer.getInstance();
-				production.addNumber(product);
-			};
-		};
-		Thread consumer = new Thread() {
-			public void run() {
-				BoundedBuffer consumption = BoundedBuffer.getInstance();
-				System.out.println(consumption.returnLast());
-			};
+				try {
+					pc.produce();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
 		};
 
-		producer.start();
-		consumer.start();
+		Thread threadCon = new Thread() {
+			public void run() {
+				try {
+					pc.consume();
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		};
+
+		threadPro.start();
+		threadCon.start();
+
+		threadPro.join();
+		threadCon.join();
 	}
 
 }
